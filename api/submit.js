@@ -79,6 +79,7 @@ const DESC = {
   },
   autoridade: {
     'Sacral':                   'Sua bússola é o seu corpo. Um "hm-hm" interno significa sim; "uhn-uhn" significa não. Confie sem precisar explicar.',
+    'Sacral Authority':         'Sua bússola é o seu corpo. Um "hm-hm" interno significa sim; "uhn-uhn" significa não. Confie sem precisar explicar.',
     'Emotional':                'Nunca decida no pico da emoção. Sua clareza vem depois que a onda passa — espere a névoa baixar.',
     'Emotional - Solar Plexus': 'Nunca decida no pico da emoção. Sua clareza vem depois que a onda passa — espere a névoa baixar.',
     'Splenic':                  'É um sussurro no momento presente. Você sabe, mas não sabe explicar por quê. Confie na primeira impressão.',
@@ -755,14 +756,32 @@ async function enviarPesquisa(dados) {
 // — MONTAR OBJETO MAPA PARA FRONTEND ————————————————
 function montarMapaFrontend(hd, planetas, portoes, canais) {
   const props = hd.Properties || {};
-  const tipoRaw = props.Type ? props.Type.id : '';
-  const estrategiaRaw = props.Strategy ? props.Strategy.id : '';
-  const autoridadeRaw = props.Authority ? props.Authority.id : '';
-  const perfilRaw = props.Profile ? props.Profile.id : '';
-  const definicaoRaw = props.Definition ? props.Definition.id : '';
-  const assinaturaRaw = props.Signature ? props.Signature.id : '';
-  const naoSelfRaw = props.NotSelfTheme ? props.NotSelfTheme.id : '';
-  const cruzRaw = props.Cross ? props.Cross.id : '';
+
+  // Helper: extrai valor de um campo da API (pode ser string, objeto com .id, ou objeto com .name)
+  function val(field) {
+    if (!field) return '';
+    if (typeof field === 'string') return field;
+    return field.id || field.name || field.label || '';
+  }
+
+  const tipoRaw = val(props.Type);
+  const estrategiaRaw = val(props.Strategy);
+  const autoridadeRaw = val(props.Authority);
+  const perfilRaw = val(props.Profile);
+  const definicaoRaw = val(props.Definition);
+  const assinaturaRaw = val(props.Signature);
+  const naoSelfRaw = val(props.NotSelfTheme) || val(props['Not-Self Theme']);
+  const cruzRaw = val(props.Cross) || val(props.IncarnationCross) || val(props['Incarnation Cross']);
+
+  console.log('[mapa-frontend] tipo:', tipoRaw, '| autoridade:', autoridadeRaw, '| cruz:', cruzRaw);
+  console.log('[mapa-frontend] Properties keys:', Object.keys(props).join(', '));
+  console.log('[mapa-frontend] Authority raw:', JSON.stringify(props.Authority));
+  console.log('[mapa-frontend] Cross raw:', JSON.stringify(props.Cross));
+  console.log('[mapa-frontend] IncarnationCross raw:', JSON.stringify(props.IncarnationCross || props['Incarnation Cross']));
+  // Log ALL props to find the right keys
+  Object.keys(props).forEach(function(k) {
+    console.log('[prop]', k, ':', JSON.stringify(props[k]));
+  });
 
   const tipoObj = getTipoObj(tipoRaw);
 
@@ -799,8 +818,8 @@ res.setHeader('Access-Control-Allow-Origin', '*');
 
 const body = await parseBody(req);
 const { nome, email, telefone, data, hora, local, pesquisa } = body;
-if (!nome||!data||!hora||!local)
-return res.status(400).json({ error:'Nome e dados de nascimento sao obrigatorios.' });
+if (!nome||!email||!data||!hora||!local)
+return res.status(400).json({ error:'Nome, email e dados de nascimento sao obrigatorios.' });
 
 try {
 console.log('[1] Iniciando para', nome, '| email:', email || 'n/a');
@@ -829,24 +848,27 @@ const planetas = extrairPlanetas(hd);
 const { portoes, canais } = extrairPortoesCanais(hd);
 const sv = getSetas(hd);
 
-// Montar mapa para exibição no frontend
+// Montar mapa para exibição no frontend (antes do PDF)
 const mapaFrontend = montarMapaFrontend(hd, planetas, portoes, canais);
 
-const pdfBytes  = await buildPdf(nome, data, hora, local, hd, planetas, portoes, canais, sv);
-const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
-console.log('[5] PDF gerado:', pdfBytes.length, 'bytes');
+// Gerar e enviar PDF (separado — se falhar, o mapa ainda é retornado)
+try {
+  const pdfBytes  = await buildPdf(nome, data, hora, local, hd, planetas, portoes, canais, sv);
+  const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
+  console.log('[5] PDF gerado:', pdfBytes.length, 'bytes');
 
-if (email) {
-  const primeiroNome = nome.split(' ')[0].toLowerCase();
-  await sendEmail(
-    email,
-    nome + ', seu Mapa de Desenho Humano est\u00e1 pronto \u2605',
-    emailPdf(nome, data, hora, local, telefone),
-    [{ filename:'mapa-desenho-humano-'+primeiroNome+'.pdf', content:pdfBase64 }]
-  );
-  console.log('[6] PDF enviado com sucesso');
-} else {
-  console.log('[6] Sem email — PDF gerado mas nao enviado');
+  if (email) {
+    const primeiroNome = nome.split(' ')[0].toLowerCase();
+    await sendEmail(
+      email,
+      nome + ', seu Mapa de Desenho Humano est\u00e1 pronto \u2605',
+      emailPdf(nome, data, hora, local, telefone),
+      [{ filename:'mapa-desenho-humano-'+primeiroNome+'.pdf', content:pdfBase64 }]
+    );
+    console.log('[6] PDF enviado com sucesso');
+  }
+} catch (pdfErr) {
+  console.error('[PDF/Email] Falha no PDF ou envio — mapa será retornado mesmo assim:', pdfErr.message);
 }
 
 return res.status(200).json({ ok: true, mapa: mapaFrontend });
