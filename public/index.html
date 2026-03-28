@@ -781,6 +781,12 @@
         <input type="text" id="nome" name="nome" placeholder="Como você prefere ser chamada" required />
       </div>
 
+      <!-- Email -->
+      <div class="form-group reveal">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="seu@email.com" required />
+      </div>
+
       <!-- Pergunta 1: Profissão -->
       <div class="survey-question reveal reveal-delay-1">
         <p class="survey-question-label">Qual é sua área de atuação?</p>
@@ -829,6 +835,11 @@
             <input type="radio" name="objetivo" value="Tenho curiosidade sobre Desenho Humano" />
             Tenho curiosidade sobre Desenho Humano
           </label>
+          <label class="radio-card">
+            <input type="radio" name="objetivo" value="other" />
+            Outra:
+            <input type="text" class="other-input" id="objetivo-other" placeholder="Escreva aqui…" />
+          </label>
         </div>
       </div>
 
@@ -851,6 +862,11 @@
           <label class="radio-card">
             <input type="radio" name="desafio" value="Quero alinhar minha vida pessoal e profissional" />
             Quero alinhar minha vida pessoal e profissional
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="desafio" value="other" />
+            Outra:
+            <input type="text" class="other-input" id="desafio-other" placeholder="Escreva aqui…" />
           </label>
         </div>
       </div>
@@ -1199,13 +1215,15 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
   e.preventDefault();
 
   nome = document.getElementById('nome').value.trim();
+  var email = document.getElementById('email').value.trim();
   var data  = document.getElementById('data').value;
   var hora  = document.getElementById('hora').value;
   var local = document.getElementById('local').value.trim();
 
-  if (!nome) {
-    alert('Por favor, preencha seu nome.');
-    document.getElementById('nome').focus();
+  if (!nome || !email) {
+    alert('Por favor, preencha seu nome e e-mail.');
+    if (!nome) document.getElementById('nome').focus();
+    else document.getElementById('email').focus();
     return;
   }
 
@@ -1243,6 +1261,8 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nome: nome,
+        email: email,
+        telefone: '',
         data: data,
         hora: hora,
         local: local,
