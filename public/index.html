@@ -560,10 +560,13 @@
       align-items: center;
       justify-content: center;
       min-height: 280px;
+      overflow: hidden;
     }
     .bodygraph-wrap svg {
-      max-width: 100%;
-      max-height: 380px;
+      width: 100%;
+      height: auto;
+      max-height: 520px;
+      display: block;
     }
 
     .planetas-wrap { margin-top: 1.5rem; }
@@ -1119,7 +1122,18 @@ function popularMapaReal(mapa) {
   document.getElementById('mapa-tipo-display').textContent = tipoLabel;
 
   if (mapa.svg) {
-    document.getElementById('bodygraph-container').innerHTML = mapa.svg;
+    var container = document.getElementById('bodygraph-container');
+    container.innerHTML = mapa.svg;
+    var svgEl = container.querySelector('svg');
+    if (svgEl) {
+      svgEl.removeAttribute('width');
+      svgEl.removeAttribute('height');
+      svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svgEl.style.width = '100%';
+      svgEl.style.height = 'auto';
+      svgEl.style.maxHeight = '520px';
+      svgEl.style.display = 'block';
+    }
   }
 
   if (mapa.planetas && mapa.planetas.length) {
