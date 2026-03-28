@@ -1025,9 +1025,6 @@
   </div>
 
   <div class="mapa-divider"></div>
-  <div class="mapa-cta-wrap">
-    <button class="mapa-cta-btn" id="upsell-btn">Quero entender como o mapa se aplica à minha carreira</button>
-  </div>
 </section>
 
 <!-- ═══ FOOTER ════════════════════════════════════════════ -->
@@ -1204,10 +1201,6 @@ function showMapaSection() {
 // ══════════════════════════════════════════════════
 // UPSELL CTA
 // ══════════════════════════════════════════════════
-document.getElementById('upsell-btn').addEventListener('click', function() {
-  window.location.href = 'https://pay.hotmart.com/X105110959O?bid=1774643309190';
-});
-
 // ══════════════════════════════════════════════════
 // FORM SUBMIT
 // ══════════════════════════════════════════════════
@@ -1254,6 +1247,7 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
   document.getElementById('formulario').style.display = 'none';
 
   var mapaReal = null;
+  var submitError = null;
 
   try {
     var res = await fetch('/api/submit', {
@@ -1278,19 +1272,27 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
     if (json.mapa) mapaReal = json.mapa;
   } catch (err) {
     console.error('Erro no submit:', err);
+    submitError = err.message || 'Erro ao gerar o mapa';
   }
 
-  setTimeout(function() {
-    hideLoadingOverlay();
+  hideLoadingOverlay();
+
+  if (mapaReal && mapaReal.svg) {
     setTimeout(function() {
-      if (mapaReal && mapaReal.svg) {
-        popularMapaReal(mapaReal);
-        showMapaSection();
-      } else {
-        showMapaSection();
-      }
+      popularMapaReal(mapaReal);
+      showMapaSection();
     }, 600);
-  }, 4000);
+  } else {
+    // Mostrar formulário de novo com mensagem de erro
+    document.getElementById('formulario').style.display = '';
+    btn.disabled = false;
+    label.textContent = 'Gerar meu mapa →';
+    var errorMsg = submitError
+      ? 'Ocorreu um erro: ' + submitError + '\n\nPor favor, tente novamente.'
+      : 'Não foi possível gerar o mapa. Verifique seus dados de nascimento e tente novamente.';
+    alert(errorMsg);
+    document.getElementById('formulario').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 });
 
 // ══════════════════════════════════════════════════
@@ -1394,13 +1396,21 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
     if (!hidden.value) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      input.focus();
-      input.style.borderColor = '#c0392b';
-      input.setAttribute('placeholder', 'Selecione uma cidade da lista');
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(function() {
-        input.style.borderColor = '';
-        input.setAttribute('placeholder', 'Comece a digitar sua cidade…');
-      }, 3000);
+        input.focus();
+        input.style.borderColor = '#c0392b';
+        input.setAttribute('placeholder', 'Selecione uma cidade da lista ↓');
+        if (input.value.trim().length > 0) {
+          alert('Por favor, selecione sua cidade de nascimento da lista que aparece ao digitar.');
+        } else {
+          alert('Por favor, digite e selecione sua cidade de nascimento.');
+        }
+        setTimeout(function() {
+          input.style.borderColor = '';
+          input.setAttribute('placeholder', 'Comece a digitar sua cidade…');
+        }, 4000);
+      }, 400);
     }
   }, true);
 })();
