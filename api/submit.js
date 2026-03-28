@@ -742,12 +742,30 @@ async function enviarPesquisa(dados) {
       hora_nascimento: dados.hora,
       cidade_nascimento: dados.local,
     };
+    console.log('[Webhook] Enviando para:', SHEETS_WEBHOOK.substring(0, 60) + '...');
     const r = await fetch(SHEETS_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      redirect: 'follow',
     });
-    console.log('[Webhook] Pesquisa enviada — status:', r.status);
+    const txt = await r.text().catch(() => '');
+    console.log('[Webhook] status:', r.status, '| response:', txt.substring(0, 200));
+
+    // Google Apps Script retorna 302 redirect — se fetch não seguiu, tentar manualmente
+    if (r.status === 302 || r.status === 301) {
+      const location = r.headers.get('location');
+      if (location) {
+        console.log('[Webhook] Seguindo redirect para:', location.substring(0, 80));
+        const r2 = await fetch(location, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const txt2 = await r2.text().catch(() => '');
+        console.log('[Webhook] Redirect status:', r2.status, '| response:', txt2.substring(0, 200));
+      }
+    }
   } catch (err) {
     console.error('[Webhook] Erro ao enviar pesquisa:', err.message);
   }
@@ -824,8 +842,12 @@ try {
 console.log('[1] Iniciando para', nome, '| email:', email || 'n/a');
 console.log('[1b] Pesquisa:', JSON.stringify(pesquisa || {}));
 
-// Enviar pesquisa para webhook (async, não bloqueia)
-enviarPesquisa(body).catch(e => console.error('[Webhook bg]', e.message));
+// Enviar pesquisa para webhook (await para garantir logs)
+try {
+  await enviarPesquisa(body);
+} catch(e) {
+  console.error('[Webhook bg]', e.message);
+}
 
 if (email) {
   await sendEmail(email, nome+', recebemos seus dados \u2605', emailConfirmacao(nome,data,hora,local,telefone));
