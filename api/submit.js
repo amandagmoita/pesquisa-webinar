@@ -766,27 +766,26 @@ function montarMapaFrontend(hd, planetas, portoes, canais) {
 
   const tipoRaw = val(props.Type);
   const estrategiaRaw = val(props.Strategy);
-  const autoridadeRaw = val(props.Authority);
+  const autoridadeRaw = val(props.InnerAuthority) || val(props.Authority);
   const perfilRaw = val(props.Profile);
   const definicaoRaw = val(props.Definition);
   const assinaturaRaw = val(props.Signature);
   const naoSelfRaw = val(props.NotSelfTheme) || val(props['Not-Self Theme']);
-  const cruzRaw = val(props.Cross) || val(props.IncarnationCross) || val(props['Incarnation Cross']);
+  const cruzRaw = val(props.IncarnationCross) || val(props.Cross) || val(props['Incarnation Cross']);
 
   console.log('[mapa-frontend] tipo:', tipoRaw, '| autoridade:', autoridadeRaw, '| cruz:', cruzRaw);
   console.log('[mapa-frontend] Properties keys:', Object.keys(props).join(', '));
-  console.log('[mapa-frontend] Authority raw:', JSON.stringify(props.Authority));
-  console.log('[mapa-frontend] Cross raw:', JSON.stringify(props.Cross));
-  console.log('[mapa-frontend] IncarnationCross raw:', JSON.stringify(props.IncarnationCross || props['Incarnation Cross']));
-  // Log ALL props to find the right keys
-  Object.keys(props).forEach(function(k) {
-    console.log('[prop]', k, ':', JSON.stringify(props[k]));
-  });
 
   const tipoObj = getTipoObj(tipoRaw);
 
+  // Colorir centros definidos/abertos no SVG
+  let svg = hd.SVG || '';
+  if (svg) {
+    svg = colorirCentrosSVG(svg, hd.DefinedCenters || [], hd.OpenCenters || []);
+  }
+
   return {
-    svg: hd.SVG || '',
+    svg: svg,
     tipo: {
       label: tr(tipoRaw),
       desc: tipoObj ? tipoObj.descricao : getDesc('tipo', tipoRaw),
