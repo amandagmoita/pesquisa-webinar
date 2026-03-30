@@ -818,60 +818,16 @@
         </div>
       </div>
 
-      <!-- Pergunta 2: Objetivo principal -->
-      <div class="survey-question reveal reveal-delay-2">
-        <p class="survey-question-label">O que mais te motiva a estar aqui?</p>
-        <div class="radio-cards">
-          <label class="radio-card">
-            <input type="radio" name="objetivo" value="Quero me conhecer melhor e entender meu propósito" />
-            Quero me conhecer melhor e entender meu propósito
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="objetivo" value="Estou buscando uma virada financeira / nova fonte de renda" />
-            Estou buscando uma virada financeira / nova fonte de renda
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="objetivo" value="Quero tomar decisões com mais clareza e menos ansiedade" />
-            Quero tomar decisões com mais clareza e menos ansiedade
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="objetivo" value="Tenho curiosidade sobre Desenho Humano" />
-            Tenho curiosidade sobre Desenho Humano
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="objetivo" value="other" />
-            Outra:
-            <input type="text" class="other-input" id="objetivo-other" placeholder="Escreva aqui…" />
-          </label>
-        </div>
+      <!-- Pergunta 2: Objetivo principal (campo aberto) -->
+      <div class="form-group reveal reveal-delay-2">
+        <label for="objetivo" class="survey-question-label" style="font-size:1rem;">O que mais te motiva a estar aqui?</label>
+        <textarea id="objetivo" name="objetivo" rows="3" placeholder="Conte com suas palavras o que te trouxe até aqui…" style="width:100%;background:var(--white);border:1px solid rgba(155,125,97,0.3);padding:0.9rem 1.1rem;font-family:'Work Sans',sans-serif;font-weight:300;font-size:0.93rem;color:var(--dark);outline:none;transition:border-color 0.2s;resize:vertical;min-height:80px;"></textarea>
       </div>
 
-      <!-- Pergunta 3: Maior medo/desafio -->
-      <div class="survey-question reveal reveal-delay-3">
-        <p class="survey-question-label">Qual é o seu maior desafio hoje?</p>
-        <div class="radio-cards">
-          <label class="radio-card">
-            <input type="radio" name="desafio" value="Me sinto perdida, sem saber qual caminho seguir" />
-            Me sinto perdida, sem saber qual caminho seguir
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="desafio" value="Trabalho muito e ganho pouco — quero mais retorno" />
-            Trabalho muito e ganho pouco — quero mais retorno
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="desafio" value="Tenho medo de arriscar e sair da zona de conforto" />
-            Tenho medo de arriscar e sair da zona de conforto
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="desafio" value="Quero alinhar minha vida pessoal e profissional" />
-            Quero alinhar minha vida pessoal e profissional
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="desafio" value="other" />
-            Outra:
-            <input type="text" class="other-input" id="desafio-other" placeholder="Escreva aqui…" />
-          </label>
-        </div>
+      <!-- Pergunta 3: Maior desafio (campo aberto) -->
+      <div class="form-group reveal reveal-delay-3">
+        <label for="desafio" class="survey-question-label" style="font-size:1rem;">Qual é o seu maior desafio hoje?</label>
+        <textarea id="desafio" name="desafio" rows="3" placeholder="O que te tira o sono ou te impede de avançar…" style="width:100%;background:var(--white);border:1px solid rgba(155,125,97,0.3);padding:0.9rem 1.1rem;font-family:'Work Sans',sans-serif;font-weight:300;font-size:0.93rem;color:var(--dark);outline:none;transition:border-color 0.2s;resize:vertical;min-height:80px;"></textarea>
       </div>
 
       <!-- Pergunta 4: Experiência com Desenho Humano -->
@@ -1258,11 +1214,11 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
   }
 
   var profissaoEl = document.querySelector('input[name="profissao"]:checked');
-  var objetivoEl  = document.querySelector('input[name="objetivo"]:checked');
-  var desafioEl   = document.querySelector('input[name="desafio"]:checked');
+  var objetivo    = document.getElementById('objetivo').value.trim();
+  var desafio     = document.getElementById('desafio').value.trim();
   var experienciaHdEl = document.querySelector('input[name="experiencia_hd"]:checked');
 
-  if (!profissaoEl || !objetivoEl || !desafioEl || !experienciaHdEl) {
+  if (!profissaoEl || !objetivo || !desafio || !experienciaHdEl) {
     alert('Por favor, responda todas as perguntas da pesquisa.');
     return;
   }
@@ -1273,8 +1229,6 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
   }
 
   var profissao = profissaoEl.value;
-  var objetivo  = objetivoEl.value;
-  var desafio   = desafioEl.value;
   var experienciaHd = experienciaHdEl.value;
 
   var btn   = document.getElementById('submit-btn');
