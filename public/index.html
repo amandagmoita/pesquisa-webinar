@@ -874,6 +874,29 @@
         </div>
       </div>
 
+      <!-- Pergunta 4: Experiência com Desenho Humano -->
+      <div class="survey-question reveal">
+        <p class="survey-question-label">Qual é sua experiência com Desenho Humano?</p>
+        <div class="radio-cards">
+          <label class="radio-card">
+            <input type="radio" name="experiencia_hd" value="Primeiro contato — nunca ouvi falar" />
+            Primeiro contato — nunca ouvi falar
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="experiencia_hd" value="Já ouvi falar, mas não sei muito" />
+            Já ouvi falar, mas não sei muito
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="experiencia_hd" value="Conheço o básico (sei meu tipo)" />
+            Conheço o básico (sei meu tipo)
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="experiencia_hd" value="Já estudo HD há algum tempo" />
+            Já estudo HD há algum tempo
+          </label>
+        </div>
+      </div>
+
       <!-- Separador visual -->
       <div style="height:1px;background:rgba(155,125,97,0.2);margin:2rem 0;" class="reveal"></div>
 
@@ -1237,8 +1260,9 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
   var profissaoEl = document.querySelector('input[name="profissao"]:checked');
   var objetivoEl  = document.querySelector('input[name="objetivo"]:checked');
   var desafioEl   = document.querySelector('input[name="desafio"]:checked');
+  var experienciaHdEl = document.querySelector('input[name="experiencia_hd"]:checked');
 
-  if (!profissaoEl || !objetivoEl || !desafioEl) {
+  if (!profissaoEl || !objetivoEl || !desafioEl || !experienciaHdEl) {
     alert('Por favor, responda todas as perguntas da pesquisa.');
     return;
   }
@@ -1251,6 +1275,7 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
   var profissao = profissaoEl.value;
   var objetivo  = objetivoEl.value;
   var desafio   = desafioEl.value;
+  var experienciaHd = experienciaHdEl.value;
 
   var btn   = document.getElementById('submit-btn');
   var label = document.getElementById('submit-label');
@@ -1277,7 +1302,8 @@ document.getElementById('hd-form').addEventListener('submit', async function(e) 
         pesquisa: {
           profissao: profissao,
           objetivo: objetivo,
-          desafio: desafio
+          desafio: desafio,
+          experiencia_hd: experienciaHd
         }
       })
     });
