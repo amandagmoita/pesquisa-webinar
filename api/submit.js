@@ -738,6 +738,7 @@ async function enviarPesquisa(dados) {
       profissao: dados.pesquisa && dados.pesquisa.profissao || '',
       objetivo: dados.pesquisa && dados.pesquisa.objetivo || '',
       desafio: dados.pesquisa && dados.pesquisa.desafio || '',
+      experiencia_hd: dados.pesquisa && dados.pesquisa.experiencia_hd || '',
       data_nascimento: dados.data,
       hora_nascimento: dados.hora,
       cidade_nascimento: dados.local,
