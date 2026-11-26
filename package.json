@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo 'No build step needed'"
+    "build": "npm run check:security && node scripts/build-static.cjs",
+    "check:security": "node scripts/security-check.cjs",
+    "security:install-hook": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "pdfkit": "^0.15.0",
